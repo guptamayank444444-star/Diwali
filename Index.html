@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="hi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kittu ❤ Dillu: Our First Diwali 🪔</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a2a3e;color-scheme:light}*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#2b1b4a;font:700 16px/1.5 Quicksand,system-ui,sans-serif;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+.b{font:inherit;border:0;border-radius:999px;padding:13px 24px;min-height:48px;background:linear-gradient(135deg,#ff9dc2,#ffc27a);color:#4a2030;box-shadow:0 4px 18px #ff8fba88;cursor:pointer;margin:4px}
+.b:active{transform:scale(.95)}button:focus-visible{outline:3px solid #8a5fc0;outline-offset:2px}
+#top{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;right:62px;font-size:.82rem;color:#fff;text-shadow:0 1px 6px #000a;z-index:4}
+#dots{display:flex;gap:4px;margin-top:2px}#dots b{width:22px;height:22px;display:flex;align-items:center;justify-content:center}#dots b:after{content:"";width:10px;height:10px;border-radius:50%;background:#fff5}#dots b.on:after{background:#ffc65a}#dots b.cur:after{background:#ff8fba;box-shadow:0 0 8px #ff8fba}
+#mu{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);right:10px;z-index:4;min-height:44px;width:44px;padding:0;font-size:1.2rem}
+#dlg{position:fixed;top:calc(env(safe-area-inset-top,0px) + 62px);left:50%;transform:translateX(-50%);max-width:min(92vw,420px);background:#fffaf2f2;border-radius:20px;padding:10px 18px;box-shadow:0 6px 24px #0005;z-index:4;opacity:0;transition:opacity .4s;text-align:center;pointer-events:none}
+#dlg.on{opacity:1}#dlg b{display:block;font-size:.72rem;color:#d64a86}#dlg.d b{color:#c0397a}#dlg.k b{color:#7a2d45}
+#hint{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);text-align:center;color:#fff;text-shadow:0 1px 8px #000b;z-index:4;pointer-events:none;padding:0 16px}
+#bw{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);text-align:center;z-index:5}
+#pal{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);display:flex;justify-content:center;gap:10px;z-index:5}
+#pal i{width:46px;height:46px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px #0006;cursor:pointer}#pal i.on{transform:scale(1.2);border-color:#ffc65a}
+.ov{position:fixed;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;overflow-y:auto;touch-action:pan-y}
+#ov{background:linear-gradient(#ffe3ecf2,#fff0d0f2)}#lt{max-width:420px;font:600 1.5rem/1.6 Caveat,cursive;text-align:left;max-height:68vh;overflow-y:auto;padding:8px}#lt span{opacity:0;transition:opacity .6s}#lt span.on{opacity:1}
+#intro{background:radial-gradient(circle at 50% 30%,#7a3f8ff5,#1b1440fa);color:#fff}#intro h1{font:700 2.3rem/1.2 Quicksand;margin:.2em;color:#ffc65a}
+#fin{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 70px);text-align:center;z-index:6;color:#fff;font:600 1.9rem/1.35 Caveat,cursive;text-shadow:0 2px 14px #c0397a,0 0 24px #ffc65a;padding:0 16px;pointer-events:none}#fin button{pointer-events:auto;font-size:1rem}
+#fade{position:fixed;inset:0;background:#fff0f6;opacity:1;transition:opacity .6s;z-index:9;pointer-events:none}
+[hidden]{display:none!important}
+</style></head><body>
+<canvas id="c" aria-label="Diwali ki raat ka anime game"></canvas>
+<div id="top"><span id="cn"></span><div id="dots"></div></div>
+<button class="b" id="mu" aria-label="Music on/off">🔊</button>
+<div id="dlg" role="status"></div><div id="hint"></div><div id="bw"></div><div id="pal" hidden></div><div id="fin"></div>
+<div class="ov" id="ov" hidden><div id="lt"></div></div>
+<div class="ov" id="intro"><div style="font-size:3.5rem">🪔</div><h1>Kittu ❤ Dillu</h1><p>Our First Diwali Together<br><small>Headphones lagao, aur sound on rakho 🎧</small></p><p id="ld">Loading ✨</p><div id="sb" hidden></div></div>
+<div id="fade"></div>
+<script>
+const $=s=>document.querySelector(s),cv=$('#c'),g=cv.getContext('2d'),P2=Math.PI*2,DW=360,GY=560,RN=Math.random;
+let W,H,S,VW,VH,OX,OY,dpr,cam=0,t=0,dtg=.016,last=0,sI=-1,bgm='street',z=1,hold=0,mu=1,mvol=.5,ac,px=0,max=0,PS=[],TM=[],ST={};
+try{max=+localStorage.getItem('dk')||0}catch(e){}
+function rs(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;S=Math.min(W/DW,H/700);VW=W/S;VH=H/S;OX=(VW-DW)/2;OY=VH-700}
+rs();addEventListener('resize',rs);
+const rnd=i=>{const x=Math.sin(i*127.1+311.7)*43758.5;return x-Math.floor(x)};
+const ln=(a,b,c,d)=>{g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.stroke()};
+const E=(x,y,rx,ry,c,a=0)=>{g.fillStyle=c;g.beginPath();g.ellipse(x,y,Math.max(rx,.1),Math.max(ry,.1),a,0,P2);g.fill()};
+const R=(x,y,w,h,c,r)=>{g.fillStyle=c;g.beginPath();if(r!=null&&g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h);g.fill()};
+const HT=(x,y,s,c)=>{g.fillStyle=c;g.beginPath();g.moveTo(x,y+s*.35);g.bezierCurveTo(x-s*1.1,y-s*.3,x-s*.5,y-s*1.05,x,y-s*.4);g.bezierCurveTo(x+s*.5,y-s*1.05,x+s*1.1,y-s*.3,x,y+s*.35);g.fill()};
+const at=(ms,f)=>TM.push(setTimeout(f,ms));
+/* ---------- audio ---------- */
+function tone(f,d,v,ty='sine'){if(!ac||!mu)return;try{const o=ac.createOscillator(),q=ac.createGain(),n=ac.currentTime;o.type=ty;o.frequency.value=f;q.gain.setValueAtTime(.0001,n);q.gain.exponentialRampToValueAtTime(Math.max(v,.0002),n+.02);q.gain.exponentialRampToValueAtTime(.0001,n+d);o.connect(q);q.connect(ac.destination);o.start();o.stop(n+d+.05)}catch(e){}}
+function A(){if(ac)return;try{ac=new(window.AudioContext||window.webkitAudioContext)();let i=0;const N=[392,494,587,784,659,587,494,440,392,523,659,784,698,587,523,440];setInterval(()=>tone(N[i++%16],1.8,.05*mvol),650)}catch(e){}}
+const pop=()=>tone(700+RN()*400,.35,.09),bell=()=>{tone(880,2.2,.12);tone(1320,1.8,.06)},boomS=()=>{tone(90,.6,.2,'triangle');tone(1500+RN()*600,.3,.04)};
+$('#mu').onclick=()=>{mu=!mu;$('#mu').textContent=mu?'🔊':'🔇'};
+/* ---------- ui helpers ---------- */
+let dT;
+function say(w,tx,ms=3400){const e=$('#dlg');e.className='on '+w;e.innerHTML='<b>'+(w=='k'?'Kittu ❤':w=='d'?'Dillu 💗':'')+'</b>'+tx;clearTimeout(dT);if(ms)dT=setTimeout(()=>e.className='',ms)}
+function seq(a,gap=2800,i=0){if(i<a.length){say(a[i][0],a[i][1],gap-200);at(gap,()=>seq(a,gap,i+1))}}
+const hint=x=>$('#hint').textContent=x;
+function btns(a){const w=$('#bw');w.innerHTML='';a.forEach(([l,f])=>{const b=document.createElement('button');b.className='b';b.textContent=l;b.onclick=()=>{w.innerHTML='';pop();f()};w.appendChild(b)})}
+function sp(x,y,n,o={}){for(let i=0;i<n;i++)PS.push({x:x+(RN()-.5)*(o.sx||0),y:y+(RN()-.5)*(o.sy||0),vx:(RN()-.5)*(o.vx||40),vy:(o.vy??-30)+(RN()-.5)*(o.vr||20),l:1,d:o.d||1.2,c:o.c||'#ff8fb3',k:o.k||'h',s:o.s||7,g:o.g||0})}
+function fire(x,y){boomS();const c=['#ffc65a','#ff8fba','#fff3c4','#b9a0ff','#7fe0c6'][RN()*5|0],n=34;for(let i=0;i<n;i++){const a=P2*i/n,v=50+RN()*60;PS.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,d:1.6,c,k:'o',s:7,g:45})}}
+/* ---------- characters (anime chibi, drawn in code) ---------- */
+const mk=()=>({x:0,tx:0,w:0,bl:.25,sm:.6,arm:0,fl:0,pray:0,hox:0,s:1,gy:GY,lx:0,ly:0});
+const K=mk(),D=mk();
+function chib(c,isK,hm){const blk=(t%3.4)<.13&&!c.pray,eo=c.pray?.1:(blk?.1:1),sd=isK?1:-1;
+ g.save();g.translate(c.x,c.gy);g.scale(c.s,c.s);
+ const sw=Math.sin(c.w)*6,bo=Math.abs(Math.sin(c.w))*3,y0=-bo,sc=isK?'#ecd9bd':'#ffd9c2',sh=isK?'#6e3b2c':'#ff9fc4';
+ g.lineCap='round';g.strokeStyle=sc;g.lineWidth=9;ln(-9,-36,-9+sw,0);ln(9,-36,9-sw,0);E(-9+sw,0,9,4.5,sh);E(9-sw,0,9,4.5,sh);
+ if(!isK){R(-37,-138+y0,74,56,'#2a1a2e',22)}
+ if(isK){R(-23,-98+y0,46,64,'#fff0d6',14);R(-23,-98+y0,15,64,'#8e2a45',7);R(8,-98+y0,15,64,'#8e2a45',7);for(let i=0;i<3;i++)E(0,-86+i*14+y0,1.8,1.8,'#d6a24a')}
+ else{g.fillStyle='#ffb3d1';g.beginPath();g.moveTo(-15,-72+y0);g.lineTo(15,-72+y0);g.lineTo(33,-24);g.lineTo(-33,-24);g.fill();g.strokeStyle='#ffd166';g.lineWidth=3;ln(-33,-24,33,-24);ln(-26,-40,26,-40);R(-18,-100+y0,36,34,'#ff8fba',12);for(let i=-1;i<2;i++)E(i*13,-54,2.5,2.5,'#ffd166')}
+ const sl=isK?'#fff0d6':'#ff8fba',arm=(sx,ex,ey)=>{g.strokeStyle=sl;g.lineWidth=10;ln(sx,-90+y0,ex,ey);E(ex,ey,5.5,5.5,'#ffe0c8')};
+ let e=[sd*27,-52];const a=c.arm,ex=(wx)=>(wx-c.x)/c.s;
+ if(c.pray){e=[sd*5,-84];arm(-sd*21,-sd*5,-84)}else arm(-sd*21,-sd*27,-52);
+ if(a=='hold')e=[ex(hm),-64];else if(a=='offer')e=[sd*54,-76];else if(a=='lan')e=[ex(c.lx),(c.ly-c.gy)/c.s];else if(a=='hug')e=[ex(hm)+sd*15,-88];else if(a=='around')e=[sd*58,-92];
+ arm(sd*21,e[0],e[1]);
+ if(c.fl){const fx=e[0],fy=e[1]-8;for(let i=0;i<5;i++)E(fx+Math.cos(i*1.256)*5,fy+Math.sin(i*1.256)*5,4,4,'#ff6fa5');E(fx,fy,3,3,'#ffd166')}
+ const hy=-134+y0,hx=c.hox;E(hx,hy,35,33,'#ffe3cc');g.fillStyle=isK?'#1f1626':'#2a1a2e';
+ if(isK){g.beginPath();g.ellipse(hx,hy-6,37,29,0,Math.PI,0);g.fill();[[-28,-14,10],[-12,-31,11],[10,-32,11],[28,-14,10],[0,-34,9]].forEach(p=>{g.beginPath();g.arc(hx+p[0],hy+p[1],p[2],0,P2);g.fill()})}
+ else{g.beginPath();g.ellipse(hx,hy-8,36,27,0,Math.PI,0);g.fill();R(hx-37,hy-8,9,46,'#2a1a2e',4);R(hx+28,hy-8,9,46,'#2a1a2e',4);E(hx,hy-44,14,13,'#2a1a2e');E(hx+18,hy-34,7.5,7.5,'#ff7fb0');E(hx+18,hy-34,3,3,'#ffd166');E(hx-6,hy-33,3.5,3.5,'#ffd166')}
+ [-12,12].forEach(q=>{E(hx+q,hy+3,6.8,9*eo,'#2b1a3a');if(eo>.5){E(hx+q+2,hy-1,2.6,2.6,'#fff');E(hx+q-2,hy+6,1.3,1.3,'#fff')}});
+ E(hx-21,hy+14,7,4,'rgba(255,90,130,'+(.2+c.bl*.55)+')');E(hx+21,hy+14,7,4,'rgba(255,90,130,'+(.2+c.bl*.55)+')');
+ g.strokeStyle='#a2475a';g.lineWidth=2;g.beginPath();g.arc(hx,hy+15,3+3*c.sm,.15,Math.PI-.15);g.stroke();
+ if(!isK){E(hx,hy-17,2.4,2.4,'#e0245e');E(hx-34,hy+15,3.2,3.2,'#ffd166');E(hx+34,hy+15,3.2,3.2,'#ffd166')}
+ g.restore()}
+/* ---------- backgrounds ---------- */
+const PAS=['#ffb7a1','#a8e6cf','#cdb4ff','#ffe29a','#ffb0cc'],STR=Array.from({length:80},(_,i)=>[rnd(i+1),rnd(i+77),rnd(i+150)*6]);
+function sky(a,b,c){const q=g.createLinearGradient(0,-OY,0,GY+40);q.addColorStop(0,a);q.addColorStop(.55,b);q.addColorStop(1,c);g.fillStyle=q;g.fillRect(-OX,-OY,VW,VH)}
+function stars(n){STR.slice(0,n).forEach(s=>{g.globalAlpha=.35+.65*Math.abs(Math.sin(t*1.3+s[2]));g.fillStyle='#fff';g.fillRect(-OX+s[0]*VW,-OY+s[1]*(VH-250),2,2)});g.globalAlpha=1}
+function far(col,wl){const f=cam*.3,u=190;for(let i=Math.floor((f-OX)/u)-1;i<(f-OX+VW)/u+1;i++){const x=i*u-f,h=110+rnd(i)*100;R(x,GY-h,u-12,h+80,col);if(wl)for(let j=0;j<6;j++)if(rnd(i*6+j)>.45)R(x+14+(j%3)*50,GY-h+16+((j/3)|0)*34,8,10,'#ffe9a8bb')}}
+function vis(){const m=VW/(2*z);return[cam+DW/2-m-60,cam+DW/2+m+60]}
+function street(){const[x0,x1]=vis(),u=190;for(let i=Math.floor(x0/u);i<x1/u;i++){const x=i*u,h=250+rnd(i+9)*70,c=PAS[((i%5)+5)%5],y=GY-h;
+ R(x,y,u-14,h,c);R(x-4,y-8,u-6,14,'#0002',4);
+ for(let j=0;j<2;j++)for(let r=0;r<2;r++){const wx=x+22+j*74,wy=y+34+r*76;R(wx-6,wy-6,56,60,'#ffd98055',8);R(wx,wy,44,48,'#ffe9a0',6);R(wx+20,wy,3,48,'#b8785a');R(wx-4,wy+50,52,5,'#8a5a4a')}
+ R(x+u/2-34,GY-86,54,86,'#7a3b2a',[27,27,0,0]);E(x+u/2-12,GY-40,3,3,'#ffd166');
+ for(let q=0;q<10;q++){const f=q/9;E(x+f*(u-14),y+4+Math.sin(f*Math.PI)*22,6,6,q%2?'#ff9d2e':'#ffc65a')}
+ for(let q=1;q<9;q++){const f=q/9;g.globalAlpha=.6+.4*Math.sin(t*3+q+i);E(x+f*u,y-16+Math.sin(f*Math.PI)*16,3.5,3.5,['#fff3a8','#ff9fc4','#9fe6ff'][q%3]);g.globalAlpha=1}
+ if(i%3==0){const lx=x+u/2-7;ln(lx,y,lx,y+34);E(lx,y+52,34,34,'rgba(255,200,100,.28)');R(lx-12,y+34,24,32,'#ff7a6a',10);R(lx-12,y+44,24,4,'#ffd166')}
+ if(((i%4)+4)%4==1){R(x+16,GY-38,72,8,'#9b6a4a');R(x+22,GY-30,5,30,'#7a4a3a');R(x+78,GY-30,5,30,'#7a4a3a');E(x+36,GY-46,18,11,'#ff9d2e');E(x+62,GY-46,18,11,'#ffc65a');E(x+50,GY-52,12,9,'#ff7a45')}}
+ R(x0,GY,x1-x0,VH*2,'#d9aebd');g.strokeStyle='#b88aa0';g.lineWidth=2;for(let x=Math.floor(x0/60)*60;x<x1;x+=60)ln(x,GY+30,x+30,GY+60)}
+function floor(c){const[x0,x1]=vis();R(x0,GY,x1-x0,VH*2,c)}
+function court(night){const[x0,x1]=vis();R(x0,GY-260,x1-x0,260,night?'#9c7bb0':'#ffd9bd');for(let i=0;i<4;i++){const x=24+i*90;R(x,GY-215,62,135,'#7a3b5a55',[31,31,0,0]);R(x+7,GY-206,48,124,'#ffe9a0',[24,24,0,0])}
+ for(let q=0;q<22;q++){const f=q/21;E(-OX+f*VW,GY-258+Math.sin(f*Math.PI*6)*7,6,6,q%2?'#ff9d2e':'#ffc65a')}floor(night?'#c99aa8':'#e2b08a');g.strokeStyle='#0002';g.lineWidth=2;for(let y=GY+40;y<GY+400;y+=45)ln(x0,y,x1,y)}
+function murti(x,y,L){E(x,y-30,60,60,'rgba(255,214,102,.4)');for(let i=-2;i<3;i++)E(x+i*17,y+40,12,7,'#ff9fc4',i*.3);
+ if(L){R(x-27,y-12,54,52,'#ff8fa8',20);E(x,y-30,17,17,'#ffd9b8');R(x-15,y-52,30,14,'#ffd166',6);E(x-34,y+4,8,8,'#ffd9b8');E(x+34,y+4,8,8,'#ffd9b8');E(x-34,y-6,7,7,'#ffd166');E(x+34,y-6,7,7,'#ffd166')}
+ else{E(x,y+8,38,38,'#ffa94d');E(x,y-26,24,22,'#ffb86b');E(x-28,y-26,12,18,'#ffa94d');E(x+28,y-26,12,18,'#ffa94d');R(x-14,y-54,28,14,'#ffd166',6);g.strokeStyle='#ff8a3d';g.lineWidth=7;g.lineCap='round';g.beginPath();g.moveTo(x,y-22);g.quadraticCurveTo(x+4,y+6,x+14,y+4);g.stroke();E(x-8,y-30,2.5,2.5,'#2a1a2e');E(x+8,y-30,2.5,2.5,'#2a1a2e');E(x,y+60,0,0,'#0000')}
+ g.fillStyle='#6b2f22';g.font='700 13px Quicksand,sans-serif';g.textAlign='center';g.fillText(L?'श्री लक्ष्मी':'श्री गणेश',x,y+64)}
+function mandir(){const x0=-OX;R(x0,-OY,VW,VH+OY+GY,'#ffe5c0');R(30,100,300,340,'#a85a34',[150,150,10,10]);R(46,116,268,324,'#6b2f22',[134,134,6,6]);murti(110,330,0);murti(250,330,1);
+ for(let q=0;q<16;q++){const f=q/15;E(46+f*268,172+Math.sin(f*Math.PI)*26,6,6,q%2?'#ff9d2e':'#ffc65a')}R(26,432,308,16,'#7a3b24');floor('#d6a074');R(x0,GY-40,VW,40,'#d6a074')}
+function dreamW(){const[x0,x1]=vis();floor('#ffd1dc');for(let i=0;i<8;i++)E(x0+(i*97)%(x1-x0),GY+30+i*14,70,10,'#ffc0d3');R(236,GY-170,28,172,'#c98b73',6);[[250,-215,95],[190,-170,60],[310,-170,60],[250,-150,70]].forEach(p=>E(p[0],GY+p[1],p[2],p[2]*.85,'#ffb7d5'));
+ for(let q=0;q<26;q++){g.globalAlpha=.5+.5*Math.sin(t*2+q);E(250+Math.cos(q*2.4)*(40+q*3.5),GY-200+Math.sin(q*2.4)*(35+q*2.5),3,3,'#fff3a8')}g.globalAlpha=1}
+/* ---------- scenes ---------- */
+const LET="Happy First Diwali, Meri Jaan! 🪔❤️🥹\n\nPata hai, ye hamari pehli Diwali hai, but dil se chahta hoon ki ye bas shuruaat ho aisi hi hazaaron Diwali ki, jo hum aage saath manayein. Life mein chahe kitne bhi ups and downs aayein, main chahta hoon hum hamesha ek doosre ka haath thaame rahein. Tumhare saath sirf festivals nahi, poori zindagi celebrate karni hai mujhe. ❤️\n\nBas itna yaad rakhna, you're not alone. I'm here, today, tomorrow and in all the little moments of our future. 🫂\n\nOur first Diwali together, and hopefully a lifetime of them to come. ❤️♾️\n\nI love you, meri jaan! 😘🪔\n\nForever Yours, Kittu ❤️";
+const PC=['#ff5fa2','#ffb347','#8a5cf6','#2fb7a3','#fff3c4'];
+function glow(x,y,r,c){const q=g.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,c);q.addColorStop(1,'rgba(255,190,80,0)');g.fillStyle=q;g.fillRect(x-r,y-r,r*2,r*2)}
+function diya(x,y,on,s=1){g.save();g.translate(x,y);g.scale(s,s);g.fillStyle='#c9693a';g.beginPath();g.ellipse(0,0,17,8,0,0,Math.PI);g.fill();E(0,0,17,4,'#e58a4a');if(on){const f=Math.sin(t*9+x)*2;g.fillStyle='#ffd166';g.beginPath();g.moveTo(-5,-2);g.quadraticCurveTo(-4+f,-14,0,-22);g.quadraticCurveTo(4+f,-14,5,-2);g.fill();E(0,-6,2.5,5,'#fff3c4')}g.restore()}
+const nx=()=>go(sI+1);
+function fin9(){ST.fz=1;ST.ft=0;K.tx=170;D.tx=200;K.arm=D.arm='hug';K.bl=D.bl=1;$('#fade').style.opacity=1;at(600,()=>{bgm='street';$('#fade').style.opacity=0});
+ const F=$('#fin');at(2500,()=>F.innerHTML='Not just one Diwali...<br>A lifetime of Diwalis together. ❤️♾️');at(6800,()=>F.innerHTML='Kittu ❤️ Dillu');at(9200,()=>{F.innerHTML='Our Story Is Just Beginning...<br><br>';const b=document.createElement('button');b.className='b';b.textContent='Relive Our First Diwali 🪔';b.onclick=()=>go(0);F.appendChild(b)})}
+const SC=[
+{n:'Welcome',m:'street',
+ e(){K.x=K.tx=215;D.x=D.tx=-OX-70;K.sm=.9;K.fl=1;seq([['k','Heyyy Dillu! 🥹❤️'],['k','Someone has been waiting for you...']],2600);at(5400,()=>btns([['Meet Your Kittu 💗',()=>{D.tx=135;at(1900,()=>{K.bl=1;D.bl=.8;D.sm=1;say('k','Aa gayi meri Dillu… 🥹❤️',2200);sp(190,GY-170,8,{sx:30});at(2700,nx)})}]]))},
+ w(){R(284,GY-232,8,232,'#5a3a4a');R(262,GY-238,34,8,'#5a3a4a',4);glow(288,GY-200,90,'rgba(255,200,100,.5)');R(276,GY-218,24,38,'#ff7a5a',10);R(276,GY-206,24,4,'#ffd166')}},
+{n:'Hold My Hand',m:'street',
+ e(){K.x=K.tx=145;D.x=D.tx=215;K.sm=.8;K.arm='offer';K.fl=1;at(300,()=>say('k','Dillu, apna haath dogi? 🥺❤️',0));btns([["Hold Kittu's Hand 🫶🏻",()=>{K.arm=D.arm='hold';K.fl=0;D.fl=1;K.bl=D.bl=1;K.sm=D.sm=1;mvol=1;sp(180,GY-120,16,{sx:50,vy:-70,d:1.8});tone(784,1,.1);tone(988,1,.08);say('k','Ab chalo, apni pehli Diwali saath manate hain! 🥹',3200);at(3800,nx)}]])}},
+{n:'Diwali Street',m:'street',
+ e(){px=120;K.x=K.tx=120;D.x=D.tx=190;K.arm=D.arm='hold';D.fl=1;K.sm=D.sm=1;ST={a:0,b:0,c:0,h:0};hint('Hold the screen (or → key) to walk ▶')},
+ u(dt){if(hold&&px<1150){px+=95*dt;K.tx=px;D.tx=px+70;ST.h+=dt;if(ST.h>.8){ST.h=0;sp(px+35,GY-190,1,{vy:-40,d:1.4,s:6})}}
+  if(px>420&&!ST.a){ST.a=1;say('k','Pata hai, tumhare saath sab kuch aur beautiful lagta hai. ❤️',3600)}
+  if(px>740&&!ST.b){ST.b=1;D.bl=1;say('d','Hehe! 🥹💗',2600)}
+  if(px>1100&&!ST.c){ST.c=1;hint('');nx()}cam=Math.max(0,px-110)}},
+{n:'Sky Lantern',m:'roof',
+ e(){K.x=K.tx=105;D.x=D.tx=175;ST={x:265,y:GY-62,lit:0,rel:0,dr:0,sy:0};hint('Tap the lantern to light it 🏮')},
+ u(dt){if(ST.rel){ST.y-=45*dt;ST.x+=Math.sin(t)*.25}},
+ w(){const L=ST;R(-OX,GY-26,VW,26,'#e9c9ff');for(let i=0;i<12;i++){g.globalAlpha=.6+.4*Math.sin(t*3+i);E(-OX+i*(VW/11),150+Math.sin(i)*14,4,4,['#fff3a8','#ff9fc4','#9fe6ff'][i%3]);g.globalAlpha=1}
+  if(L.lit)glow(L.x,L.y,L.rel?90:70,'rgba(255,200,90,.6)');R(L.x-16,L.y-26,32,48,L.lit?'#ff9a4a':'#e6d8c4',12);R(L.x-16,L.y-12,32,5,L.lit?'#ffd166':'#cdbfa8');if(L.lit)E(L.x,L.y,5,9,'#fff3c4')},
+ dn(x,y){const L=ST;if(Math.hypot(x-L.x,y-L.y)<48){if(!L.lit){L.lit=1;pop();bell();sp(L.x,L.y,12,{k:'o',c:'#ffd166',sx:30,d:1.2});K.tx=216;D.tx=314;K.arm=D.arm='lan';K.lx=L.x-18;K.ly=L.y-2;D.lx=L.x+18;D.ly=L.y-2;K.sm=D.sm=1;hint('Now swipe the lantern up to release it ✨')}else if(!L.rel)L.dr=1,L.sy=y}},
+ mv(x,y){const L=ST;if(L.dr&&L.sy-y>60){L.dr=0;L.rel=1;K.arm=D.arm=0;hint('');boomS();at(900,()=>seq([['k','Ek wish maangi hai...'],['k','Ki hum har Diwali aise hi saath rahein. ❤️♾️']],3400));at(9500,nx)}},
+ up(){ST.dr=0}},
+{n:'Rangoli',m:'court',
+ e(){K.x=K.tx=48;D.x=D.tx=312;K.s=D.s=.85;K.gy=D.gy=GY+14;K.sm=D.sm=1;ST={G:[],c:0,n:0,h:0,dn:0};
+  for(let r=0;r<14;r++)for(let q=0;q<15;q++){const X=(q-7)/5.8,Y=(7.5-r)/5.4;if(Math.pow(X*X+Y*Y-1,3)-X*X*Y*Y*Y<=0)ST.G.push({x:180+(q-7)*10,y:574+(r-6.5)*10.5,c:0})}
+  const p=$('#pal');p.hidden=false;p.innerHTML='';PC.forEach((c,i)=>{const b=document.createElement('i');b.style.background=c;if(!i)b.className='on';b.onclick=()=>{ST.c=i;[...p.children].forEach((x,j)=>x.className=j==i?'on':'')};p.appendChild(b)});
+  at(300,()=>say('k','Dillu, mere saath rangoli banaogi? 🥹 Colour chuno, phir dots par ungli ghumao ✨',7000))},
+ u(dt){const s=ST;if(s.n>=3&&!s.dn){s.h+=dt;if(s.h>.8){s.h=0;const f=s.G.filter(c=>!c.c);if(f.length){const c=f[RN()*f.length|0];c.c=PC[RN()*5|0];s.n++;sp(c.x,c.y,4,{k:'o',c:'#fff3c4',d:.8,s:6});K.sm=1}}}
+  if(s.n>=s.G.length&&!s.dn){s.dn=1;$('#pal').hidden=true;hint('');tone(784,1,.1);tone(1047,1.2,.08);sp(180,575,24,{k:'p',c:'#ff9fc4',sx:120,sy:60,vy:-50,d:2});say('k','Hum dono ki tarah... perfect together! 🥹💗',4200);at(5200,nx)}},
+ w(){const s=ST;if(!s.G)return;s.G.forEach(c=>E(c.x,c.y,c.c?5.4:2.6,c.c?5.4:2.6,c.c||'rgba(255,255,255,.55)'));if(s.dn){g.fillStyle='#fff';g.shadowColor='#c0397a';g.shadowBlur=10;g.font='700 17px Quicksand,sans-serif';g.textAlign='center';g.fillText('Kittu ❤ Dillu',180,579);g.shadowBlur=0}},
+ dn(x,y){this.mv(x,y)},
+ mv(x,y){if(!ST.G||ST.dn)return;ST.G.forEach(c=>{if(!c.c&&Math.hypot(c.x-x,c.y-y)<10){c.c=PC[ST.c];ST.n++;if(ST.n%4==0)pop();sp(c.x,c.y,2,{k:'p',c:PC[ST.c],d:.9,s:8,vy:-25})}})}},
+{n:'Diyas',m:'court',night:1,
+ e(){K.x=K.tx=105;D.x=D.tx=255;K.s=D.s=.9;ST={Y:Array.from({length:7},(_,i)=>({x:36+i*48,y:GY+28,on:0})),n:0};hint('Tap each diya to light it 🪔');at(300,()=>say('k','Chalo, diye jalate hain… ✨',2400))},
+ lit(q,byD){if(q.on)return;q.on=1;ST.n++;pop();bell();sp(q.x,q.y-14,8,{k:'o',c:'#ffd166',sx:16,d:1.4});if(byD)at(1300,()=>{const w=ST.Y.find(v=>!v.on);if(w)this.lit(w,0)});
+  if(ST.n==7){hint('');at(600,()=>say('k','Jaise ye diye andhere ko roshan karte hain, waise hi tum meri life ko. ❤️',4400));at(6200,nx)}},
+ dn(x,y){const q=ST.Y.find(v=>!v.on&&Math.hypot(x-v.x,y-v.y)<28);if(q)this.lit(q,1)},
+ u(){if(ST.n&&RN()<.12){const q=ST.Y.filter(v=>v.on);const p=q[RN()*q.length|0];sp(p.x,p.y-20,1,{k:'o',c:'#ffd166',vy:-35,d:2,vx:20,s:6})}},
+ o(){const L=ST.Y;g.fillStyle='rgba(20,10,60,'+(.5*(1-ST.n/7))+')';g.fillRect(-OX,-OY,VW,VH);g.globalCompositeOperation='lighter';L.forEach(q=>{if(q.on)glow(q.x,q.y-12,80,'rgba(255,190,90,.35)')});g.globalCompositeOperation='source-over';L.forEach(q=>diya(q.x,q.y,q.on,1.1));drawPS()},ps:1},
+{n:'Pooja',m:'mandir',
+ e(){K.x=K.tx=60;D.x=D.tx=300;K.gy=D.gy=GY+24;ST={st:0,fc:0,ta:0,th:{x:180,y:520},dr:0,la:null,lit:0};hint('Tap the flower plate to offer flowers 🌼')},
+ w(){const s=ST;E(115,438,34,10,'#ffd166');for(let i=0;i<7;i++)E(100+i*5,430,7,5,['#ff9d2e','#ffc65a','#ff6fa5'][i%3]);
+  diya(245,442,s.lit,1.4);if(s.lit)glow(245,420,60,'rgba(255,200,100,.5)');
+  if(s.st>=2){const h=s.th;E(h.x,h.y+4,44,15,'#c9972f');E(h.x,h.y,44,15,'#ffd166');E(h.x,h.y,28,9,'#ffe9a0');diya(h.x,h.y+3,1,1);for(let i=0;i<6;i++)E(h.x-30+i*12,h.y+2,3,3,['#ff6fa5','#ff9d2e'][i%2])}},
+ dn(x,y){const s=ST;if(s.st==0&&Math.hypot(x-115,y-438)<44){s.fc++;pop();sp(115,430,6,{k:'p',c:'#ffb347',vy:-110,vx:60,d:1.4,s:9,g:60});if(s.fc>=3){s.st=1;hint('Now tap the pooja diya to light it 🪔')}}
+  else if(s.st==1&&Math.hypot(x-245,y-436)<44){s.lit=1;s.st=2;bell();sp(245,425,10,{k:'o',c:'#ffd166',sx:20});hint('Drag the thali in a circle for aarti 🙏')}
+  else if(s.st==2&&Math.hypot(x-s.th.x,y-s.th.y)<56)s.dr=1},
+ mv(x,y){const s=ST;if(!s.dr||s.st!=2)return;const dx=x-180,dy=y-520,r=Math.min(Math.hypot(dx,dy),58),a=Math.atan2(dy,dx);s.th.x=180+Math.cos(a)*r;s.th.y=520+Math.sin(a)*r;if(s.la!=null){let da=a-s.la;if(da>Math.PI)da-=P2;if(da<-Math.PI)da+=P2;s.ta+=Math.abs(da)}s.la=a;
+  if(s.ta>P2*1.5){s.st=3;s.dr=0;hint('');bell();K.pray=D.pray=1;K.sm=D.sm=.9;sp(180,330,18,{k:'o',c:'#ffd166',sx:140,sy:80,vy:-20,d:2});at(1200,()=>say('k','Bas ek hi dua hai... hum dono hamesha khush rahein, saath rahein. ❤️',5000));at(7600,nx)}},
+ up(){ST.dr=0;ST.la=null}},
+{n:'Fireworks',m:'sky',
+ e(){K.x=K.tx=135;D.x=D.tx=225;ST={S:[],n:0,f:0,ft:0};btns([["Let's Celebrate! 🎇",()=>{ST.S=[[60,140],[300,120],[110,260],[250,240],[180,80]].map(p=>({x:p[0],y:p[1],on:1}));hint('Tap the glowing stars in the sky ✨')}]])},
+ u(dt){const s=ST;if(s.f){s.ft+=dt;if(RN()<dt*2.4)fire(40+RN()*280,70+RN()*220)}},
+ w(){ST.S.forEach(s=>{if(s.on){glow(s.x,s.y,34+Math.sin(t*4)*6,'rgba(255,240,160,.9)');E(s.x,s.y,5,5,'#fff')}})},
+ dn(x,y){const s=ST,q=s.S.find(v=>v.on&&Math.hypot(x-v.x,y-v.y)<34);if(q){q.on=0;fire(q.x,q.y);if(++s.n==5){hint('');s.f=1;K.tx=160;D.tx=212;K.arm='around';D.hox=-11;K.bl=D.bl=1;K.sm=D.sm=1;at(11000,nx)}}},
+ o(){const s=ST;if(s.f){const a=Math.min(1,s.ft/2);g.save();g.textAlign='center';g.shadowColor='#ffc65a';g.shadowBlur=18;g.fillStyle='rgba(255,255,255,'+a+')';g.font='700 34px Quicksand,sans-serif';g.fillText('Kittu ❤ Dillu',DW/2,200);if(s.ft>4.5){g.fillStyle='rgba(255,236,170,'+Math.min(1,(s.ft-4.5)/2)+')';g.font='700 21px Quicksand,sans-serif';g.fillText('Our First Diwali Together 🪔♾️',DW/2,245)}g.restore()}}},
+{n:'Last Surprise',m:'sky',
+ e(){K.x=K.tx=130;D.x=D.tx=225;ST={o:0,lid:0};at(300,()=>say('k','Dillu... ek last surprise hai tumhare liye. 🥹❤️',0));
+  btns([["Open Kittu's Heart 💌",()=>{ST.o=1;say('',' ',1);tone(523,1,.1);tone(659,1.2,.1);tone(784,1.4,.1);sp(190,GY-90,26,{sx:30,vy:-60,d:3});sp(190,GY-90,12,{k:'b',c:'#ff9fc4',sx:30,vy:-50,vx:60,d:4,s:8});
+   at(1100,()=>{$('#fade').style.opacity=1});at(1700,()=>{bgm='dream';K.tx=140;D.tx=207;K.sm=D.sm=1;K.bl=D.bl=1;K.arm='hold';$('#fade').style.opacity=0;at(1000,letter)})}]])},
+ u(dt){if(ST.o)ST.lid=Math.min(1,ST.lid+dt*1.6)},
+ w(){if(bgm=='dream')return;const x=K.x+52,y=GY;glow(x,y-40,80,'rgba(255,170,200,'+(.3+ST.lid*.4)+')');R(x-22,y-40,44,40,'#ff8fba',6);R(x-3,y-40,6,40,'#ffd166');R(x-26,y-52-ST.lid*26,52,13,'#ff9fc8',5);R(x-3,y-52-ST.lid*26,6,13,'#ffd166');E(x,y-58-ST.lid*26,9,6,'#ffd166')}}, 
+{n:'Our Forever',m:'dream',
+ e(){K.x=K.tx=140;D.x=D.tx=210;K.sm=D.sm=1;K.bl=D.bl=1;K.arm='hold';ST={fz:0,ft:0,p:0};btns([['One More Diwali With Me? 🥺❤️',()=>{say('k','Dillu… bolo na? 🥹',3000);btns([['Yesss, Kittu! 🥹❤️',fin9],['Forever & Always ♾️',fin9]])}]])},
+ u(dt){const s=ST;if(s.fz){s.ft+=dt;z=Math.max(.5,1-s.ft*.07);s.p+=dt;if(s.p>.12){s.p=0;sp(cam+DW/2+(RN()-.5)*VW/z,-OY-20,1,{k:'p',c:['#ff9fc4','#ffc65a','#fff3c4'][RN()*3|0],vy:50,vx:10,d:9,s:10,g:4})}if(RN()<dt*1.6)fire(cam+DW/2+(RN()-.5)*320/z,GY-300+RN()*120)}},
+ w(){if(ST.fz){const a=.5+.5*Math.sin(t*3);g.save();g.shadowColor='#ffc65a';g.shadowBlur=22;g.strokeStyle='rgba(255,214,102,'+(.6+a*.4)+')';g.lineWidth=4;g.beginPath();const cx=(K.x+D.x)/2,cy=GY-90,s=95;g.moveTo(cx,cy+s*.5);g.bezierCurveTo(cx-s*1.3,cy-s*.2,cx-s*.6,cy-s*1.25,cx,cy-s*.55);g.bezierCurveTo(cx+s*.6,cy-s*1.25,cx+s*1.3,cy-s*.2,cx,cy+s*.5);g.stroke();g.restore()}}}
+];
+function letter(){const o=$('#ov'),l=$('#lt');o.hidden=false;l.innerHTML='';const tk=LET.replace(/\n\n/g,' ¶ ').split(/ +/);let i=0;
+ const iv=setInterval(()=>{if(i>=tk.length){clearInterval(iv);btns([['Continue ♾️',()=>{o.hidden=true;nx()}]]);return}const w=tk[i++];if(w=='¶'){l.appendChild(document.createElement('br'));l.appendChild(document.createElement('br'))}else{const s=document.createElement('span');s.textContent=w+' ';l.appendChild(s);requestAnimationFrame(()=>s.className='on')}l.scrollTop=l.scrollHeight},230);TM.push(iv)}
+/* ---------- engine ---------- */
+function ui(){$('#cn').textContent='Chapter '+(sI+1)+'/10 · '+SC[sI].n;[...$('#dots').children].forEach((b,i)=>b.className=i==sI?'cur':i<=max?'on':'')}
+function go(i){if(i>9)i=0;const f=$('#fade');f.style.opacity=1;at(600,()=>{TM.forEach(x=>{clearTimeout(x);clearInterval(x)});TM=[];$('#bw').innerHTML='';$('#pal').hidden=true;$('#fin').innerHTML='';$('#ov').hidden=true;$('#dlg').className='';hint('');PS=[];
+  Object.assign(K,mk());Object.assign(D,mk());sI=i;max=Math.max(max,i);try{localStorage.setItem('dk',max)}catch(e){}bgm=SC[i].m;z=1;cam=0;hold=0;ST={};K.x=K.tx=120;D.x=D.tx=200;SC[i].e();ui();f.style.opacity=0})}
+for(let i=0;i<10;i++){const b=document.createElement('b');b.setAttribute('aria-label','Chapter '+(i+1));b.onclick=()=>{if(i<=max&&i!=sI)go(i)};$('#dots').appendChild(b)}
+function upd(dt){const s=SC[sI];if(!s)return;[K,D].forEach(c=>{const dx=c.tx-c.x;if(Math.abs(dx)>1.5){c.x+=dx*Math.min(1,dt*(sI==2?10:2.2));c.w+=dt*12}else c.w=0});s.u&&s.u(dt);
+ PS=PS.filter(p=>p.l>0);PS.forEach(p=>{p.l-=dt/p.d;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.g*dt})}
+function drawPS(){PS.forEach(p=>{g.globalAlpha=Math.max(0,Math.min(1,p.l*1.4));const s=p.s;if(p.k=='h')HT(p.x,p.y,s,p.c);else if(p.k=='o')E(p.x,p.y,s*.4,s*.4,p.c);else if(p.k=='p')E(p.x,p.y,s*.6,s*.3,p.c,p.l*6);else{const f=Math.abs(Math.sin(t*14+p.x));E(p.x-s*.5,p.y,s*.5*f+1,s*.8,p.c,.4);E(p.x+s*.5,p.y,s*.5*f+1,s*.8,p.c,-.4)}});g.globalAlpha=1}
+function draw(){g.setTransform(dpr*S,0,0,dpr*S,dpr*S*OX,dpr*S*OY);const sc=SC[sI];if(!sc)return;
+ if(bgm=='street'||bgm=='court'){sky('#35286b','#b8689f','#ffc59b');stars(50)}else if(bgm=='roof'){sky('#241a52','#7a3f8f','#ffb08a');stars(60);far('#3a2a6b',1)}else if(bgm=='sky'){sky('#0d0a2b','#2b1a5a','#6a3a7a');stars(80);far('#1f1544',1)}else if(bgm=='dream')sky('#ffd6e7','#ffc3a0','#ffe8a8');
+ if(bgm=='street')far('#6a4d9c',0);
+ g.save();if(z!=1){g.translate(DW/2,GY-90);g.scale(z,z);g.translate(-DW/2,-(GY-90))}g.translate(-cam,0);
+ if(bgm=='street')street();else if(bgm=='court')court(sc.night);else if(bgm=='roof'){const[x0,x1]=vis();floor('#c69bd6')}else if(bgm=='sky')floor('#4a3a6b');else if(bgm=='mandir')mandir();else dreamW();
+ sc.w&&sc.w();const hm=(K.x+D.x)/2;chib(K,1,hm);chib(D,0,hm);if(!sc.ps)drawPS();g.restore();sc.o&&sc.o()}
+function frame(n){dtg=Math.min((n-last)/1000,.05);last=n;t+=dtg;try{upd(dtg);draw()}catch(e){console.error(e)}requestAnimationFrame(frame)}
+const pt=e=>[e.clientX/S-OX+cam,e.clientY/S-OY];
+cv.addEventListener('pointerdown',e=>{A();hold=1;const s=SC[sI];if(s&&s.dn){const[x,y]=pt(e);s.dn.call(s,x,y)}});
+cv.addEventListener('pointermove',e=>{const s=SC[sI];if(s&&s.mv&&e.buttons|| s&&s.mv&&e.pointerType=='touch'){const[x,y]=pt(e);s.mv.call(s,x,y)}});
+['pointerup','pointercancel'].forEach(v=>cv.addEventListener(v,()=>{hold=0;const s=SC[sI];s&&s.up&&s.up()}));
+addEventListener('keydown',e=>{if(e.key=='ArrowRight')hold=1});addEventListener('keyup',e=>{if(e.key=='ArrowRight')hold=0});
+requestAnimationFrame(frame);
+/* ---------- start ---------- */
+function ready(){$('#ld').hidden=true;const b=$('#sb');b.hidden=false;const a=[['Start 🪔',()=>{max=0;begin(0)}]];if(max>0)a.unshift(['Continue (Chapter '+(Math.min(max,9)+1)+')',()=>begin(Math.min(max,9))]);a.forEach(([l,f])=>{const x=document.createElement('button');x.className='b';x.textContent=l;x.onclick=()=>{A();f()};b.appendChild(x)})}
+function begin(i){$('#intro').hidden=true;go(i)}
+(document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve()).then(()=>setTimeout(ready,500));
+</script></body></html>
